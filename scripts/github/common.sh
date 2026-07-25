@@ -37,21 +37,28 @@ print_issue_contents() {
   body="$(jq -r '.body // ""' <<<"$issue_json")"
   cat <<CONTENTS
 
-===== ${heading} #${number}: ${title} =====
+${heading} #${number}: ${title}
 URL: ${url}
 Labels: ${labels:-none}
-
 ${body:-No issue body.}
-===== End ${heading} #${number} =====
+End ${heading} #${number}
 CONTENTS
 }
 
 epic_branch_name() {
-  local parent_issue_json="$1" fallback_issue_number="$2" title epic_num
+  local parent_issue_json="$1" fallback_issue_number="$2"
+  local title summary
+
   title="$(jq -r '.title // ""' <<<"$parent_issue_json")"
-  epic_num="$(grep -Eio '^Epic[[:space:]]+[0-9]+' <<<"$title" | grep -Eo '[0-9]+' | head -1 || true)"
-  if [[ -n "$epic_num" ]]; then
-    printf 'epic/%s' "$epic_num"
+
+  # Remove common epic prefixes
+  summary="$(printf '%s' "$title" \
+    | sed -E 's/^[Ee]pic[: -]*//' \
+    | xargs \
+    | slugify)"
+
+  if [[ -n "$summary" ]]; then
+    printf 'epic/%s' "$summary"
   else
     printf 'epic-unknown-%s' "$fallback_issue_number"
   fi
