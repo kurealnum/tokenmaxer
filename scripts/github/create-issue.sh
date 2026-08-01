@@ -7,7 +7,8 @@ Usage: $0 <title> <label> [body]
 
 Creates a single GitHub issue. Prints only the resulting issue number and URL.
 
-If [body] is omitted, the body is read from stdin.
+Body is a markdown description. If [body] is omitted, it is read from stdin
+(pipe in a full markdown doc for a detailed description).
 Requires: gh
 USAGE
 }
