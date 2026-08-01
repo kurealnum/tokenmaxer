@@ -21,6 +21,10 @@ Default skills/usage:
 
 - `/do-issue #issue-number`
 - `/do-epic #issue-number`
+- `/do-create-issue`
+- `/do-create-epic`
+- `/do-commit`
+- `/do-close-pr [pr-number]`
 
 Skills are not intended to provide the full functionality of this repository. They are only wrappers around the internals.
 
@@ -37,26 +41,27 @@ More usecases will be added in the future
 
 ```mermaid
 flowchart TD
+    subgraph create["do-create-issue / do-create-epic (optional)"]
+        direction LR
+        C1[create-issue.sh or create-epic.sh] --> C2[issue/epic exists on GitHub]
+    end
+
     subgraph issue["do-issue"]
         direction LR
-        I1[start-issue.sh] --> I2[create-issue-branch.sh] --> I3[implement] --> I4[open-pr.sh]
+        I1[start-issue.sh] --> I2[create-issue-branch.sh] --> I3["implement (do-commit for commit messages)"] --> I4[open-pr.sh] --> I5[do-close-pr]
     end
 
     subgraph epic["do-epic"]
         direction TB
-        E0[get-subissues.sh] --> ES1
-        subgraph ES1["subissue 1"]
-            direction LR
-            A1[start-issue.sh] --> A2[create-issue-branch.sh] --> A3[implement] --> A4[open-pr.sh]
-        end
-        ES1 --> M1[merge PR into epic branch] --> ES2
-        subgraph ES2["subissue 2..N"]
-            direction LR
-            B1[start-issue.sh] --> B2[create-issue-branch.sh] --> B3[implement] --> B4[open-pr.sh]
-        end
-        M1 --> M2[...]
-        M2 --> EF[open final PR: epic branch into main]
+        E0[get-subissues.sh] --> ES1["subissue 1: run do-issue"]
+        ES1 --> M1[merge subissue PR into epic branch] --> ES2
+        ES2["subissue 2..N: run do-issue"] --> M2[merge subissue PR into epic branch]
+        M2 --> EF[open final PR: epic branch into main] --> EF2[do-close-pr]
     end
+
+    create -.-> issue
+    create -.-> epic
+    issue -. "do-issue runs once per subissue" .-> epic
 ```
 
 # future work
