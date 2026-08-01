@@ -38,12 +38,22 @@ Only removes files whose checksum still matches what was installed; hand-edited 
 
 # how
 
+Do:
+
 - Script everything that can be deterministically evaluated, such as generating a branch name
-- Offload non-deterministic work in a deterministic way. For example, generating a PR via a LLM with a script (_not_ a subagent)
-- Avoid subagents, default commands such as `/review` from Claude Code, and situations that would require a LLM to iterate indefinitely, such as `/loop`
-- Use skills (or other alternatives, such as custom harnesses) to use these scripts in an efficient manner
 - Use no MCPs unless absolutely necessary
+- Use minimal models and minimal effort (ex. Sonnet 5 on Low effort)
+- Meticulously plan all work; bug fixes, features, refactors, etc.
+- Trim or completely remove CLAUDE.md and any skills that aren't absolutely necessary
+- Offload non-deterministic work in a deterministic way. For example, generating a PR via a LLM with a script (_not_ a subagent)
+- Use skills (or other alternatives, such as custom harnesses) to use these scripts in an efficient manner
 - Use token efficient harnesses (ex. [pi mono](https://github.com/earendil-works/pi), [omegon](https://github.com/styrene-lab/omegon))
+
+Avoid:
+
+- Running high-context sessions without compacting/resetting. A _very rough_ rule of thumb is 20-30% of a model's maximum context.
+- Subagents, default commands such as `/review` from Claude Code, and situations that would require a LLM to iterate indefinitely, such as `/loop`
+- Automated code reviews and other automated LLM runs that might not be necessary.
 
 This repository aims to help you accomplish all of the above.
 
@@ -51,12 +61,12 @@ This repository aims to help you accomplish all of the above.
 
 Default skills/usage:
 
-- `/do-issue #issue-number`
-- `/do-epic #issue-number`
+- `/do-issue`
+- `/do-epic`
 - `/do-create-issue`
 - `/do-create-epic`
 - `/do-commit`
-- `/do-close-pr [pr-number]`
+- `/do-close-pr`
 
 Skills are not intended to provide the full functionality of this repository. They are only wrappers around the internals.
 
@@ -66,8 +76,10 @@ Keep in mind that some scripts may need to be modified depending on your usecase
 
 There are currently two ways to use this repository to minimize token usage:
 
-1. Completing an issue on GitHub via `/do-issue #issue-number`
-2. Completing an epic (parent issue with subissues) on GitHub via `/do-epic #issue-number`
+1. Completing/creating an issue on GitHub
+2. Completing/creating an epic (parent issue with subissues) on GitHub
+3. Closing PRs
+4. Making commits via a local LLM
 
 More usecases will be added in the future
 
@@ -96,11 +108,6 @@ flowchart TD
     issue -. "do-issue runs once per subissue" .-> epic
 ```
 
-# future work
-
-- Providing multiple paradigms as to how software projects can be built (see: `paradigms`)
-- See `CONTRIBUTING.md`
-
 # local LLM setup (do-commit)
 
 `do-commit` generates commit messages with a local, OpenAI-compatible LLM server (LM Studio, Ollama's OpenAI endpoint, llama.cpp server, vLLM, etc) instead of a frontier model. Set these env vars (e.g. in your shell profile or a `.env` you source before use):
@@ -112,3 +119,8 @@ export LLM_API_KEY=optional-key                # optional, if your server needs 
 ```
 
 `LLM_BASE_URL`/`LLM_MODEL`/`LLM_API_KEY` come from whatever local server you're running — check its docs for the exact base URL and model name it exposes. See `docs/local-llm-commit.md` for more.
+
+# future work
+
+- Providing multiple paradigms as to how software projects can be built (see: `paradigms`)
+- See `CONTRIBUTING.md`
