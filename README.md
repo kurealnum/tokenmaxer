@@ -35,6 +35,30 @@ There are currently two ways to use this repository to minimize token usage:
 
 More usecases will be added in the future
 
+```mermaid
+flowchart TD
+    subgraph issue["do-issue"]
+        direction LR
+        I1[start-issue.sh] --> I2[create-issue-branch.sh] --> I3[implement] --> I4[open-pr.sh]
+    end
+
+    subgraph epic["do-epic"]
+        direction TB
+        E0[get-subissues.sh] --> ES1
+        subgraph ES1["subissue 1"]
+            direction LR
+            A1[start-issue.sh] --> A2[create-issue-branch.sh] --> A3[implement] --> A4[open-pr.sh]
+        end
+        ES1 --> M1[merge PR into epic branch] --> ES2
+        subgraph ES2["subissue 2..N"]
+            direction LR
+            B1[start-issue.sh] --> B2[create-issue-branch.sh] --> B3[implement] --> B4[open-pr.sh]
+        end
+        M1 --> M2[...]
+        M2 --> EF[open final PR: epic branch into main]
+    end
+```
+
 # future work
 
 - Using local LLMs to generate commit messages, PR titles, etc.
