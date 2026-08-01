@@ -4,6 +4,22 @@ Fable 5 shouldn't write commit messages, nor should it think about checking out 
 
 That is, frontier models should be used as little as possible.
 
+# install
+
+Interactive (prompts you to pick components):
+
+```
+curl -fsSL https://raw.githubusercontent.com/kurealnum/tokenmaxer/main/install.sh | bash
+```
+
+Non-interactive, specific components:
+
+```
+curl -fsSL https://raw.githubusercontent.com/kurealnum/tokenmaxer/main/install.sh | bash -s -- --components do-issue,do-commit
+```
+
+See `docs/installer.md` for the full component list, uninstall (`./uninstall.sh`), and update (`./install.sh --update`).
+
 # how
 
 - Script everything that can be deterministically evaluated, such as generating a branch name
@@ -68,5 +84,4 @@ flowchart TD
 
 - Using local LLMs to generate commit messages, PR titles, etc.
 - Providing multiple paradigms as to how software projects can be built (see: `paradigms`)
-- Adding an installer/updater to install and update any relevant scripts and skills from this repository
 - See `CONTRIBUTING.md`
