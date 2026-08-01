@@ -18,7 +18,23 @@ Non-interactive, specific components:
 curl -fsSL https://raw.githubusercontent.com/kurealnum/tokenmaxer/main/install.sh | bash -s -- --components do-issue,do-commit
 ```
 
-See `docs/installer.md` for the full component list, uninstall (`./uninstall.sh`), and update (`./install.sh --update`).
+See `docs/installer.md` for the full component list and update (`./install.sh --update`).
+
+## uninstall
+
+Remove one component:
+
+```
+curl -fsSL https://raw.githubusercontent.com/kurealnum/tokenmaxer/main/uninstall.sh | bash -s -- do-commit
+```
+
+Remove everything installed:
+
+```
+curl -fsSL https://raw.githubusercontent.com/kurealnum/tokenmaxer/main/uninstall.sh | bash -s -- --all
+```
+
+Only removes files whose checksum still matches what was installed; hand-edited files are left in place.
 
 # how
 
@@ -82,6 +98,17 @@ flowchart TD
 
 # future work
 
-- Using local LLMs to generate commit messages, PR titles, etc.
 - Providing multiple paradigms as to how software projects can be built (see: `paradigms`)
 - See `CONTRIBUTING.md`
+
+# local LLM setup (do-commit)
+
+`do-commit` generates commit messages with a local, OpenAI-compatible LLM server (LM Studio, Ollama's OpenAI endpoint, llama.cpp server, vLLM, etc) instead of a frontier model. Set these env vars (e.g. in your shell profile or a `.env` you source before use):
+
+```
+export LLM_BASE_URL=http://localhost:1234/v1   # default shown, optional
+export LLM_MODEL=your-model-name               # required
+export LLM_API_KEY=optional-key                # optional, if your server needs one
+```
+
+`LLM_BASE_URL`/`LLM_MODEL`/`LLM_API_KEY` come from whatever local server you're running — check its docs for the exact base URL and model name it exposes. See `docs/local-llm-commit.md` for more.

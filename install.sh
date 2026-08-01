@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# Installs tokenmaxer components (scripts/skills/docs) into the current repo.
+# Installs tokenmaxer components (scripts/skills) into the current repo.
 #
 # Usage:
 #   curl -fsSL https://raw.githubusercontent.com/kurealnum/tokenmaxer/main/install.sh | bash -s -- [--components a,b,c] [--force]
@@ -7,8 +7,8 @@
 #   ./install.sh --update [--force]
 #
 # With no --components flag, runs an interactive menu.
-# If a file to be installed already exists and isn't one we previously
-# installed unmodified, it's left alone unless --force is passed.
+# If a file to be installed already exists, it's left alone and reported as
+# BLOCKED unless --force is passed.
 # --update re-fetches the manifest and upgrades any installed component whose
 # manifest version differs from the recorded version; use --force to also
 # overwrite components with locally-edited files.
@@ -112,12 +112,17 @@ record_source_commit() {
   mv "$tmp" "$STATE_FILE"
 }
 
-# force="true" overwrites unconditionally. Otherwise, a file that already
-# exists on disk is only overwritten if it matches what we last installed
-# (i.e. re-running the same component); an existing file we don't recognize,
-# or one whose content has since changed, is left alone.
+# Files skipped this run because they already existed and --force wasn't
+# passed; reported as an explicit summary at the end instead of only as an
+# inline log line easy to miss.
+BLOCKED_FILES=()
+
+# force="true" overwrites unconditionally. Otherwise, ANY file that already
+# exists on disk at the destination path is left untouched — we don't try to
+# guess whether it's "ours" first, since that's exactly the silent-overwrite
+# behavior this check exists to prevent.
 install_component() {
-  local name="$1" force="${2:-false}" version file dest dir sha recorded_sha
+  local name="$1" force="${2:-false}" version file dest dir sha
   version="$(component_field "$name" version)"
 
   local written_files_json="[]"
@@ -128,15 +133,9 @@ install_component() {
     mkdir -p "$dir"
 
     if [[ -e "$dest" && "$force" != "true" ]]; then
-      recorded_sha="$(installed_file_sha "$name" "$file")"
+      echo "  BLOCKED (already exists, use --force to overwrite): $dest"
+      BLOCKED_FILES+=("$dest")
       sha="$(sha256_of_file "$dest")"
-      if [[ -z "$recorded_sha" || "$recorded_sha" != "$sha" ]]; then
-        echo "  skip (already exists, use --force to overwrite): $dest"
-      else
-        fetch_file "$file" > "$dest"
-        sha="$(sha256_of_file "$dest")"
-        echo "  installed: $dest"
-      fi
     else
       fetch_file "$file" > "$dest"
       sha="$(sha256_of_file "$dest")"
@@ -188,14 +187,6 @@ interactive_select() {
     done
   fi
   printf '%s\n' "${selected[@]}"
-}
-
-# Returns the recorded sha256 for a file within an installed component, or
-# empty if the component/file isn't in the install-state.
-installed_file_sha() {
-  local name="$1" path="$2"
-  jq -r --arg n "$name" --arg p "$path" \
-    '.components[$n].files[]? | select(.path==$p) | .sha256' "$STATE_FILE" 2>/dev/null
 }
 
 # Reports whether any file belonging to an installed component has been
@@ -300,6 +291,13 @@ main() {
   done
 
   echo "Done. Install state recorded in ${STATE_FILE}"
+
+  if [[ ${#BLOCKED_FILES[@]} -gt 0 ]]; then
+    echo
+    echo "BLOCKED: the following files already existed and were left untouched:"
+    for f in "${BLOCKED_FILES[@]}"; do echo "  - $f"; done
+    echo "Re-run with --force to overwrite them."
+  fi
 
   for name in "${resolved[@]}"; do
     [[ "$name" == "do-commit" ]] && print_do_commit_env_hint

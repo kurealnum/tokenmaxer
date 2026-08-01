@@ -46,7 +46,7 @@ This table is generated from `installer/manifest.json` — that file is the sour
 
 Installed files go into the target repo's own `tokenmaxer/scripts/` and `.agents/skills/` directories, matching their paths in this repo. `install.sh` records what it wrote in `.tokenmaxer/installed.json`: per component, its version and each file's path + checksum at install time, plus `source_commit` — the tokenmaxer `main` commit hash the install/update was pulled from, used as an overall version marker. This is what `uninstall.sh` and `install.sh --update` use to know what's safe to touch.
 
-If a file `install.sh` would write already exists and isn't something it installed unmodified before, it's left alone (printed as `skip (already exists, use --force to overwrite)`) so it never silently clobbers a file you've customized. Pass `--force` to overwrite anyway.
+If a file `install.sh` would write already exists, it's left alone — printed as `BLOCKED (already exists, use --force to overwrite)`, with a summary listing every blocked file at the end — so it never silently clobbers a file that's already there. Pass `--force` to overwrite anyway.
 
 ## Uninstall
 
