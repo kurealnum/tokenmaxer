@@ -25,9 +25,9 @@ Requires: curl, jq, git
 USAGE
 }
 
-ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/../.." && pwd)"
-# shellcheck source=scripts/github/common.sh
-source "${ROOT}/scripts/github/common.sh"
+ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/../../.." && pwd)"
+# shellcheck source=tokenmaxer/scripts/github/common.sh
+source "${ROOT}/tokenmaxer/scripts/github/common.sh"
 
 SYSTEM_PROMPT='You write Conventional Commits messages. Given a git diff, output exactly one line: type(scope): subject. No markdown fences, no explanation, no extra lines.'
 

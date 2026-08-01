@@ -11,7 +11,7 @@ Uses the entire diff — do not use if you want to commit a partial diff. See `d
 1. Ensure `LLM_MODEL` (and `LLM_BASE_URL`/`LLM_API_KEY` if not default) are set.
 2. Run
 
-./scripts/git/commit-with-llm.sh
+./tokenmaxer/scripts/git/commit-with-llm.sh
 
 Use `--dry-run` to preview the message without committing.
 
