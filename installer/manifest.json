@@ -71,6 +71,18 @@
         ".agents/skills/do-commit-with-llm/SKILL.md",
         "docs/local-llm-commit.md"
       ]
+    },
+    {
+      "name": "do-close-pr",
+      "version": "1.0.0",
+      "description": "Merge a PR once it has no changes-requested reviews and no failing checks",
+      "depends": [
+        "common"
+      ],
+      "files": [
+        "tokenmaxer/scripts/github/close-pr.sh",
+        ".agents/skills/do-close-pr/SKILL.md"
+      ]
     }
   ]
 }

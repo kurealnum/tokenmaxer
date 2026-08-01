@@ -36,6 +36,7 @@ Dependencies of a requested component (e.g. `common` for any `github/*` componen
 | `do-create-issue` | Create a single GitHub issue from a title/label/markdown body | `tokenmaxer/scripts/github/create-issue.sh`, `.agents/skills/do-create-issue/SKILL.md` |
 | `do-create-epic` | Create an epic issue with linked subissues | `tokenmaxer/scripts/github/create-epic.sh`, `.agents/skills/do-create-epic/SKILL.md` |
 | `do-commit-with-llm` | Generate a Conventional Commits message from the current diff via a local LLM server | `tokenmaxer/scripts/git/commit-with-llm.sh`, `.agents/skills/do-commit-with-llm/SKILL.md`, `docs/local-llm-commit.md` |
+| `do-close-pr` | Merge a PR once it has no changes-requested reviews and no failing checks | `tokenmaxer/scripts/github/close-pr.sh`, `.agents/skills/do-close-pr/SKILL.md` |
 
 This table is generated from `installer/manifest.json` — that file is the source of truth; check it if this drifts.
 
