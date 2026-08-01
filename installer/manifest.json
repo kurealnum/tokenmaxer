@@ -62,13 +62,13 @@
       ]
     },
     {
-      "name": "do-commit-with-llm",
-      "version": "1.1.0",
+      "name": "do-commit",
+      "version": "1.2.0",
       "description": "Generate a Conventional Commits message from the current diff via a local LLM server",
       "depends": [],
       "files": [
         "tokenmaxer/scripts/git/commit-with-llm.sh",
-        ".agents/skills/do-commit-with-llm/SKILL.md",
+        ".agents/skills/do-commit/SKILL.md",
         "docs/local-llm-commit.md"
       ]
     },
