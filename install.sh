@@ -2,11 +2,13 @@
 # Installs tokenmaxer components (scripts/skills/docs) into the current repo.
 #
 # Usage:
-#   curl -fsSL https://raw.githubusercontent.com/kurealnum/tokenmaxer/main/install.sh | bash -s -- [--components a,b,c]
-#   ./install.sh [--components a,b,c]
+#   curl -fsSL https://raw.githubusercontent.com/kurealnum/tokenmaxer/main/install.sh | bash -s -- [--components a,b,c] [--force]
+#   ./install.sh [--components a,b,c] [--force]
 #   ./install.sh --update [--force]
 #
 # With no --components flag, runs an interactive menu.
+# If a file to be installed already exists and isn't one we previously
+# installed unmodified, it's left alone unless --force is passed.
 # --update re-fetches the manifest and upgrades any installed component whose
 # manifest version differs from the recorded version; use --force to also
 # overwrite components with locally-edited files.
@@ -14,6 +16,7 @@
 set -euo pipefail
 
 RAW_BASE="${TOKENMAXER_RAW_BASE:-https://raw.githubusercontent.com/kurealnum/tokenmaxer/main}"
+COMMIT_API="${TOKENMAXER_COMMIT_API:-https://api.github.com/repos/kurealnum/tokenmaxer/commits/main}"
 STATE_DIR=".tokenmaxer"
 STATE_FILE="${STATE_DIR}/installed.json"
 
@@ -89,8 +92,32 @@ ensure_base_dirs() {
   [[ -d "tokenmaxer" ]] || mkdir -p "tokenmaxer"
 }
 
+# The tokenmaxer main-branch commit this install/update was pulled from —
+# used as a version marker since installed files don't carry their own.
+fetch_source_commit() {
+  if running_from_clone; then
+    git rev-parse HEAD 2>/dev/null || echo "unknown"
+  else
+    curl -fsSL "$COMMIT_API" | jq -r '.sha // "unknown"'
+  fi
+}
+
+record_source_commit() {
+  mkdir -p "$STATE_DIR"
+  [[ -f "$STATE_FILE" ]] || echo '{"components":{}}' > "$STATE_FILE"
+  local commit tmp
+  commit="$(fetch_source_commit)"
+  tmp="$(mktemp)"
+  jq --arg c "$commit" '.source_commit = $c' "$STATE_FILE" > "$tmp"
+  mv "$tmp" "$STATE_FILE"
+}
+
+# force="true" overwrites unconditionally. Otherwise, a file that already
+# exists on disk is only overwritten if it matches what we last installed
+# (i.e. re-running the same component); an existing file we don't recognize,
+# or one whose content has since changed, is left alone.
 install_component() {
-  local name="$1" version file dest dir sha
+  local name="$1" force="${2:-false}" version file dest dir sha recorded_sha
   version="$(component_field "$name" version)"
 
   local written_files_json="[]"
@@ -99,10 +126,24 @@ install_component() {
     dest="$file"
     dir="$(dirname "$dest")"
     mkdir -p "$dir"
-    fetch_file "$file" > "$dest"
-    sha="$(sha256_of_file "$dest")"
+
+    if [[ -e "$dest" && "$force" != "true" ]]; then
+      recorded_sha="$(installed_file_sha "$name" "$file")"
+      sha="$(sha256_of_file "$dest")"
+      if [[ -z "$recorded_sha" || "$recorded_sha" != "$sha" ]]; then
+        echo "  skip (already exists, use --force to overwrite): $dest"
+      else
+        fetch_file "$file" > "$dest"
+        sha="$(sha256_of_file "$dest")"
+        echo "  installed: $dest"
+      fi
+    else
+      fetch_file "$file" > "$dest"
+      sha="$(sha256_of_file "$dest")"
+      echo "  installed: $dest"
+    fi
+
     written_files_json="$(jq --arg p "$file" --arg s "$sha" '. + [{path:$p, sha256:$s}]' <<<"$written_files_json")"
-    echo "  installed: $dest"
   done < <(component_files "$name")
 
   update_state "$name" "$version" "$written_files_json"
@@ -180,6 +221,7 @@ run_update() {
 
   load_manifest
   ensure_base_dirs
+  record_source_commit
 
   local updated=() skipped_same=() skipped_edited=()
   while IFS= read -r name; do
@@ -198,7 +240,7 @@ run_update() {
     fi
 
     echo "Updating $name ($installed_version -> $manifest_version)..."
-    install_component "$name"
+    install_component "$name" true
     updated+=("$name")
   done < <(jq -r '.components | keys[]' "$STATE_FILE")
 
@@ -208,6 +250,10 @@ run_update() {
   if [[ ${#skipped_edited[@]} -gt 0 ]]; then
     echo "Skipped (locally edited, re-run with --force to overwrite): ${skipped_edited[*]}"
   fi
+
+  for name in "${updated[@]}"; do
+    [[ "$name" == "do-commit" ]] && print_do_commit_env_hint
+  done
 }
 
 main() {
@@ -234,6 +280,7 @@ main() {
 
   load_manifest
   ensure_base_dirs
+  record_source_commit
 
   local requested=()
   if [[ -n "$components_arg" ]]; then
@@ -249,10 +296,34 @@ main() {
 
   for name in "${resolved[@]}"; do
     echo "Installing $name..."
-    install_component "$name"
+    install_component "$name" "$force"
   done
 
   echo "Done. Install state recorded in ${STATE_FILE}"
+
+  for name in "${resolved[@]}"; do
+    [[ "$name" == "do-commit" ]] && print_do_commit_env_hint
+  done
+}
+
+# do-commit needs a local OpenAI-compatible LLM server configured via env
+# vars — point this out right after install instead of making users dig
+# through docs/local-llm-commit.md to discover it.
+print_do_commit_env_hint() {
+  cat <<'HINT'
+
+do-commit needs a local OpenAI-compatible LLM server (LM Studio, Ollama's
+OpenAI endpoint, llama.cpp server, vLLM, etc). Set these env vars (e.g. in
+your shell profile or a .env file you source before use):
+
+  export LLM_BASE_URL=http://localhost:1234/v1   # default shown, optional
+  export LLM_MODEL=your-model-name               # required
+  export LLM_API_KEY=optional-key                # optional, if your server needs one
+
+LLM_BASE_URL/LLM_MODEL/LLM_API_KEY come from whatever local server you're
+running — check its docs for the exact base URL and model name it exposes.
+See https://github.com/kurealnum/tokenmaxer/blob/main/docs/local-llm-commit.md for more.
+HINT
 }
 
 main "$@"
