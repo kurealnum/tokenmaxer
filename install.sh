@@ -4,8 +4,12 @@
 # Usage:
 #   curl -fsSL https://raw.githubusercontent.com/kurealnum/tokenmaxer/main/install.sh | bash -s -- [--components a,b,c]
 #   ./install.sh [--components a,b,c]
+#   ./install.sh --update [--force]
 #
 # With no --components flag, runs an interactive menu.
+# --update re-fetches the manifest and upgrades any installed component whose
+# manifest version differs from the recorded version; use --force to also
+# overwrite components with locally-edited files.
 
 set -euo pipefail
 
@@ -131,18 +135,87 @@ interactive_select() {
   printf '%s\n' "${selected[@]}"
 }
 
+# Returns the recorded sha256 for a file within an installed component, or
+# empty if the component/file isn't in the install-state.
+installed_file_sha() {
+  local name="$1" path="$2"
+  jq -r --arg n "$name" --arg p "$path" \
+    '.components[$n].files[]? | select(.path==$p) | .sha256' "$STATE_FILE" 2>/dev/null
+}
+
+# Reports whether any file belonging to an installed component has been
+# edited since install (current checksum differs from the recorded one).
+component_has_local_edits() {
+  local name="$1" path recorded current
+  while IFS=$'\t' read -r path recorded; do
+    [[ -z "$path" ]] && continue
+    [[ -f "$path" ]] || continue
+    current="$(sha256_of_file "$path")"
+    [[ "$current" != "$recorded" ]] && return 0
+  done < <(jq -r --arg n "$name" '.components[$n].files[] | [.path, .sha256] | @tsv' "$STATE_FILE")
+  return 1
+}
+
+run_update() {
+  local force="$1" name installed_version manifest_version
+
+  if [[ ! -f "$STATE_FILE" ]]; then
+    echo "No install state found at $STATE_FILE; nothing to update." >&2
+    exit 1
+  fi
+
+  load_manifest
+
+  local updated=() skipped_same=() skipped_edited=()
+  while IFS= read -r name; do
+    [[ -z "$name" ]] && continue
+    installed_version="$(jq -r --arg n "$name" '.components[$n].version' "$STATE_FILE")"
+    manifest_version="$(component_field "$name" version)"
+
+    if [[ "$installed_version" == "$manifest_version" ]]; then
+      skipped_same+=("$name")
+      continue
+    fi
+
+    if [[ "$force" != "true" ]] && component_has_local_edits "$name"; then
+      skipped_edited+=("$name")
+      continue
+    fi
+
+    echo "Updating $name ($installed_version -> $manifest_version)..."
+    install_component "$name"
+    updated+=("$name")
+  done < <(jq -r '.components | keys[]' "$STATE_FILE")
+
+  echo
+  echo "Updated: ${updated[*]:-none}"
+  echo "Already up to date: ${skipped_same[*]:-none}"
+  if [[ ${#skipped_edited[@]} -gt 0 ]]; then
+    echo "Skipped (locally edited, re-run with --force to overwrite): ${skipped_edited[*]}"
+  fi
+}
+
 main() {
-  local components_arg=""
+  local components_arg="" update=false force=false
   while [[ $# -gt 0 ]]; do
     case "$1" in
       --components)
         components_arg="$2"; shift 2 ;;
       --components=*)
         components_arg="${1#*=}"; shift ;;
+      --update)
+        update=true; shift ;;
+      --force)
+        force=true; shift ;;
       *)
         echo "Unknown argument: $1" >&2; exit 1 ;;
     esac
   done
+
+  if [[ "$update" == "true" ]]; then
+    run_update "$force"
+    return
+  fi
 
   load_manifest
 
