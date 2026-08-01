@@ -12,17 +12,17 @@ All code must be documented - functions, fields, enums, structs, classes, etc.
 
 1. Start issue context
 
-./scripts/github/start-issue.sh {issue-number}
+./tokenmaxer/scripts/github/start-issue.sh {issue-number}
 
 2. Create issue branch
 
-./scripts/github/create-issue-branch.sh {issue-number} {branch-summary-from-start-issue-output}
+./tokenmaxer/scripts/github/create-issue-branch.sh {issue-number} {branch-summary-from-start-issue-output}
 
 3. Implement the issue
 
 4. Open a PR with "closes #{issue-number}" in the description
 
-./scripts/github/open-pr.sh {issue-number} --summary "{3-to-5-word-summary}"
+./tokenmaxer/scripts/github/open-pr.sh {issue-number} --summary "{3-to-5-word-summary}"
 
 ## Notes
 

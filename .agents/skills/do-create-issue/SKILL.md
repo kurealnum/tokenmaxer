@@ -12,7 +12,7 @@ Ask only for: title, label, markdown description (skip asking anything else — 
 
 1. Create the issue, piping the full markdown description via stdin
 
-./scripts/github/create-issue.sh "{title}" "{label}" <<'EOF'
+./tokenmaxer/scripts/github/create-issue.sh "{title}" "{label}" <<'EOF'
 {markdown-description}
 EOF
 

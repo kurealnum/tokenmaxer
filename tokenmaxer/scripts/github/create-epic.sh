@@ -19,9 +19,9 @@ Requires: gh, jq
 USAGE
 }
 
-ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/../.." && pwd)"
-# shellcheck source=scripts/github/common.sh
-source "${ROOT}/scripts/github/common.sh"
+ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/../../.." && pwd)"
+# shellcheck source=tokenmaxer/scripts/github/common.sh
+source "${ROOT}/tokenmaxer/scripts/github/common.sh"
 
 issue_node_id() {
   local repo="$1" number="$2" owner name

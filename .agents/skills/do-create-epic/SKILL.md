@@ -12,7 +12,7 @@ Ask only for: epic title, subissue titles, and a markdown description for the ep
 
 1. Create the epic and subissues, piping markdown descriptions via stdin — one block per issue body, in order (epic first, then each subissue in the same order as the title args), separated by a line containing only `---`
 
-./scripts/github/create-epic.sh "{epic-title}" "{subissue-title-1}" "{subissue-title-2}" ... <<'EOF'
+./tokenmaxer/scripts/github/create-epic.sh "{epic-title}" "{subissue-title-1}" "{subissue-title-2}" ... <<'EOF'
 {epic-markdown-description}
 ---
 {subissue-1-markdown-description}

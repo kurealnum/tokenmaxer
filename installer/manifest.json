@@ -2,63 +2,72 @@
   "components": [
     {
       "name": "common",
-      "version": "1.0.0",
+      "version": "1.1.0",
       "description": "Shared shell helpers required by all github/* scripts",
       "files": [
-        "scripts/github/common.sh"
+        "tokenmaxer/scripts/github/common.sh"
       ]
     },
     {
       "name": "do-issue",
-      "version": "1.0.0",
+      "version": "1.1.0",
       "description": "Start/branch/PR workflow for a single GitHub issue",
-      "depends": ["common"],
+      "depends": [
+        "common"
+      ],
       "files": [
-        "scripts/github/start-issue.sh",
-        "scripts/github/create-issue-branch.sh",
-        "scripts/github/open-pr.sh",
+        "tokenmaxer/scripts/github/start-issue.sh",
+        "tokenmaxer/scripts/github/create-issue-branch.sh",
+        "tokenmaxer/scripts/github/open-pr.sh",
         ".agents/skills/do-issue/SKILL.md",
         "docs/github-workflow.md"
       ]
     },
     {
       "name": "do-epic",
-      "version": "1.0.0",
+      "version": "1.1.0",
       "description": "Workflow for completing an epic and its subissues in order",
-      "depends": ["common", "do-issue"],
+      "depends": [
+        "common",
+        "do-issue"
+      ],
       "files": [
-        "scripts/github/get-subissues.sh",
+        "tokenmaxer/scripts/github/get-subissues.sh",
         ".agents/skills/do-epic/SKILL.md",
         "docs/github-workflow.md"
       ]
     },
     {
       "name": "do-create-issue",
-      "version": "1.0.0",
+      "version": "1.1.0",
       "description": "Create a single GitHub issue from a title/label/markdown body",
-      "depends": ["common"],
+      "depends": [
+        "common"
+      ],
       "files": [
-        "scripts/github/create-issue.sh",
+        "tokenmaxer/scripts/github/create-issue.sh",
         ".agents/skills/do-create-issue/SKILL.md"
       ]
     },
     {
       "name": "do-create-epic",
-      "version": "1.0.0",
+      "version": "1.1.0",
       "description": "Create an epic issue with linked subissues",
-      "depends": ["common"],
+      "depends": [
+        "common"
+      ],
       "files": [
-        "scripts/github/create-epic.sh",
+        "tokenmaxer/scripts/github/create-epic.sh",
         ".agents/skills/do-create-epic/SKILL.md"
       ]
     },
     {
       "name": "do-commit-with-llm",
-      "version": "1.0.0",
+      "version": "1.1.0",
       "description": "Generate a Conventional Commits message from the current diff via a local LLM server",
       "depends": [],
       "files": [
-        "scripts/git/commit-with-llm.sh",
+        "tokenmaxer/scripts/git/commit-with-llm.sh",
         ".agents/skills/do-commit-with-llm/SKILL.md",
         "docs/local-llm-commit.md"
       ]

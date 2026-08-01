@@ -30,12 +30,12 @@ Dependencies of a requested component (e.g. `common` for any `github/*` componen
 
 | Component | Description | Files |
 |---|---|---|
-| `common` | Shared shell helpers required by all github/* scripts | `scripts/github/common.sh` |
-| `do-issue` | Start/branch/PR workflow for a single GitHub issue | `scripts/github/start-issue.sh`, `scripts/github/create-issue-branch.sh`, `scripts/github/open-pr.sh`, `.agents/skills/do-issue/SKILL.md`, `docs/github-workflow.md` |
-| `do-epic` | Workflow for completing an epic and its subissues in order | `scripts/github/get-subissues.sh`, `.agents/skills/do-epic/SKILL.md`, `docs/github-workflow.md` |
-| `do-create-issue` | Create a single GitHub issue from a title/label/markdown body | `scripts/github/create-issue.sh`, `.agents/skills/do-create-issue/SKILL.md` |
-| `do-create-epic` | Create an epic issue with linked subissues | `scripts/github/create-epic.sh`, `.agents/skills/do-create-epic/SKILL.md` |
-| `do-commit-with-llm` | Generate a Conventional Commits message from the current diff via a local LLM server | `scripts/git/commit-with-llm.sh`, `.agents/skills/do-commit-with-llm/SKILL.md`, `docs/local-llm-commit.md` |
+| `common` | Shared shell helpers required by all github/* scripts | `tokenmaxer/scripts/github/common.sh` |
+| `do-issue` | Start/branch/PR workflow for a single GitHub issue | `tokenmaxer/scripts/github/start-issue.sh`, `tokenmaxer/scripts/github/create-issue-branch.sh`, `tokenmaxer/scripts/github/open-pr.sh`, `.agents/skills/do-issue/SKILL.md`, `docs/github-workflow.md` |
+| `do-epic` | Workflow for completing an epic and its subissues in order | `tokenmaxer/scripts/github/get-subissues.sh`, `.agents/skills/do-epic/SKILL.md`, `docs/github-workflow.md` |
+| `do-create-issue` | Create a single GitHub issue from a title/label/markdown body | `tokenmaxer/scripts/github/create-issue.sh`, `.agents/skills/do-create-issue/SKILL.md` |
+| `do-create-epic` | Create an epic issue with linked subissues | `tokenmaxer/scripts/github/create-epic.sh`, `.agents/skills/do-create-epic/SKILL.md` |
+| `do-commit-with-llm` | Generate a Conventional Commits message from the current diff via a local LLM server | `tokenmaxer/scripts/git/commit-with-llm.sh`, `.agents/skills/do-commit-with-llm/SKILL.md`, `docs/local-llm-commit.md` |
 
 This table is generated from `installer/manifest.json` — that file is the source of truth; check it if this drifts.
 

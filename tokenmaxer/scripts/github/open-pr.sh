@@ -17,9 +17,9 @@ Requires: gh, jq, git
 USAGE
 }
 
-ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/../.." && pwd)"
-# shellcheck source=scripts/github/common.sh
-source "${ROOT}/scripts/github/common.sh"
+ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/../../.." && pwd)"
+# shellcheck source=tokenmaxer/scripts/github/common.sh
+source "${ROOT}/tokenmaxer/scripts/github/common.sh"
 
 prompt_summary() {
   local summary

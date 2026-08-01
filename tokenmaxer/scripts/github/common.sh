@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 # shellcheck shell=bash
-# Shared helpers for scripts/github/*.sh
+# Shared helpers for tokenmaxer/scripts/github/*.sh
 
 set -euo pipefail
 

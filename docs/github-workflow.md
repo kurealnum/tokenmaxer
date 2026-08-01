@@ -1,6 +1,6 @@
 # GitHub Issue/Epic Workflow
 
-Scripts: `scripts/github/*.sh`. Skills: `.agents/skills/do-issue/SKILL.md`, `.agents/skills/do-issue/do-epic/SKILL.md`.
+Scripts: `tokenmaxer/tokenmaxer/scripts/github/*.sh`. Skills: `.agents/skills/do-issue/SKILL.md`, `.agents/skills/do-issue/do-epic/SKILL.md`.
 
 Two paradigms: single issue, epic with subissues.
 
@@ -16,10 +16,10 @@ main ──┬── issue/{summary} ──► PR into main
 
 Steps (do-issue skill):
 
-1. `scripts/github/start-issue.sh {issue-number}` — print issue, assign self, Status → In Progress.
-2. `scripts/github/create-issue-branch.sh {issue-number} {summary}` — branch off `origin/main`, name `{label}/{summary}`.
+1. `tokenmaxer/scripts/github/start-issue.sh {issue-number}` — print issue, assign self, Status → In Progress.
+2. `tokenmaxer/scripts/github/create-issue-branch.sh {issue-number} {summary}` — branch off `origin/main`, name `{label}/{summary}`.
 3. Implement.
-4. `scripts/github/open-pr.sh {issue-number} --summary "..."` — push branch, PR base `main`, title `{label}: {summary} - closes #{issue}`, Status → In Review.
+4. `tokenmaxer/scripts/github/open-pr.sh {issue-number} --summary "..."` — push branch, PR base `main`, title `{label}: {summary} - closes #{issue}`, Status → In Review.
 
 ## Paradigm 2: Epic with Subissues
 
@@ -37,7 +37,7 @@ main ──── epic/{epic-summary} ──┬── issue/{sub-1-summary} ─�
 
 Steps (do-epic skill):
 
-1. `scripts/github/get-subissues.sh {epic-issue-number}` — list subissue numbers, in order.
+1. `tokenmaxer/scripts/github/get-subissues.sh {epic-issue-number}` — list subissue numbers, in order.
 2. For each subissue, run `do-issue` skill (Paradigm 1 steps) — but branch/PR base auto-resolve to epic branch, not main:
    - `create-issue-branch.sh` detects parent via GraphQL/issue body, creates `epic/{epic-summary}` off `origin/main` first (if missing), checks it out, then branches subissue off it.
    - `open-pr.sh` same parent detection, sets PR base to `epic/{epic-summary}` instead of `main`.
@@ -46,7 +46,7 @@ Steps (do-epic skill):
 
 ## Creation Entrypoint
 
-Scripts: `scripts/github/create-issue.sh`, `scripts/github/create-epic.sh`. Skills: `do-create-issue`, `do-create-epic`.
+Scripts: `tokenmaxer/scripts/github/create-issue.sh`, `tokenmaxer/scripts/github/create-epic.sh`. Skills: `do-create-issue`, `do-create-epic`.
 
 Mirrors `do-issue`/`do-epic` but for creation instead of implementation:
 

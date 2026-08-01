@@ -8,7 +8,7 @@ Standard workflow for completing an Epic on Github (Epic = Issue with subissues,
 
 1. Given an issue number
 
-Run ./scripts/github/get-subissues.sh {issue-number}
+Run ./tokenmaxer/scripts/github/get-subissues.sh {issue-number}
 
 2. Complete each issue in order that it was given
 
