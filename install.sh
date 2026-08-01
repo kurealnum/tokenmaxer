@@ -82,6 +82,13 @@ resolve_components() {
   printf '%s\n' "${resolved[@]}"
 }
 
+# Bare/empty target repos won't have these yet; create them up front rather
+# than relying on mkdir -p per-file to notice they're missing.
+ensure_base_dirs() {
+  [[ -d ".agents" ]] || mkdir -p ".agents"
+  [[ -d "tokenmaxer" ]] || mkdir -p "tokenmaxer"
+}
+
 install_component() {
   local name="$1" version file dest dir sha
   version="$(component_field "$name" version)"
@@ -113,22 +120,29 @@ update_state() {
 }
 
 interactive_select() {
-  local names=() descriptions=() i=1 choice
+  local names=() i=1 choice
   while IFS= read -r n; do names+=("$n"); done < <(component_names)
 
-  echo "Available tokenmaxer components:"
+  # Menu/prompt text must go to stderr — this function's stdout is captured
+  # by the caller as the selected component list.
+  echo "Available tokenmaxer components:" >&2
   for n in "${names[@]}"; do
-    echo "  $i) $n - $(component_field "$n" description)"
+    echo "  $i) $n - $(component_field "$n" description)" >&2
     i=$((i+1))
   done
 
-  read -r -p 'Select components (space-separated numbers, or "all"): ' choice
+  read -r -p 'Select components (comma or space-separated numbers, or "all"): ' choice >&2
 
-  local selected=()
+  local selected=() idx
   if [[ "$choice" == "all" ]]; then
     selected=("${names[@]}")
   else
+    choice="${choice//,/ }"
     for idx in $choice; do
+      if ! [[ "$idx" =~ ^[0-9]+$ ]] || (( idx < 1 || idx > ${#names[@]} )); then
+        echo "Invalid selection: $idx" >&2
+        exit 1
+      fi
       selected+=("${names[$((idx-1))]}")
     done
   fi
@@ -165,6 +179,7 @@ run_update() {
   fi
 
   load_manifest
+  ensure_base_dirs
 
   local updated=() skipped_same=() skipped_edited=()
   while IFS= read -r name; do
@@ -218,12 +233,15 @@ main() {
   fi
 
   load_manifest
+  ensure_base_dirs
 
   local requested=()
   if [[ -n "$components_arg" ]]; then
     IFS=',' read -r -a requested <<< "$components_arg"
   else
-    while IFS= read -r n; do requested+=("$n"); done < <(interactive_select)
+    local sel_output
+    sel_output="$(interactive_select)" || exit 1
+    while IFS= read -r n; do [[ -n "$n" ]] && requested+=("$n"); done <<< "$sel_output"
   fi
 
   local resolved=()
