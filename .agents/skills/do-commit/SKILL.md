@@ -8,10 +8,15 @@ Uses the entire diff — do not use if you want to commit a partial diff. See `d
 
 ## Steps
 
-1. Ensure `LLM_MODEL` (and `LLM_BASE_URL`/`LLM_API_KEY` if not default) are set.
-2. Run
+Config comes from (lowest to highest precedence): `.tokenmaxer-llm.env` in repo root, `~/.config/tokenmaxer/llm.env`, shell env vars, CLI flags.
+
+If a config file already sets `LLM_MODEL` (etc.), just run:
 
 ./tokenmaxer/scripts/git/commit-with-llm.sh
+
+No config file present: pass flags directly, no need to export env vars first:
+
+./tokenmaxer/scripts/git/commit-with-llm.sh --model MODEL_NAME [--base-url URL] [--api-key KEY]
 
 Use `--dry-run` to preview the message without committing.
 

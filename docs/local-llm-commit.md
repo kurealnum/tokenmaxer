@@ -6,19 +6,34 @@ Uses the entire diff — do not use if you want to commit a partial diff.
 
 ## Setup
 
-Point at a local OpenAI-compatible server:
+Point at a local OpenAI-compatible server. Config resolves from four sources, lowest to highest precedence:
+
+1. `.tokenmaxer-llm.env` in repo root
+2. `~/.config/tokenmaxer/llm.env`
+3. Env vars (`LLM_BASE_URL`, `LLM_MODEL`, `LLM_API_KEY`)
+4. CLI flags (`--base-url`, `--model`, `--api-key`)
+
+Config file format (shell-sourced):
 
 ```
-export LLM_BASE_URL=http://localhost:1234/v1   # default shown
-export LLM_MODEL=your-model-name               # required
-export LLM_API_KEY=optional-key                # optional
+LLM_BASE_URL=http://localhost:1234/v1   # default shown
+LLM_MODEL=your-model-name               # required
+LLM_API_KEY=optional-key                # optional
 ```
+
+A config file avoids per-call env exports — useful when an agent invokes the script directly and can't rely on shell profile sourcing. CLI flags override everything, for one-off model swaps.
 
 ## Usage
 
 ```
-./tokenmaxer/scripts/git/commit-with-llm.sh              # commits with generated message
-./tokenmaxer/scripts/git/commit-with-llm.sh --dry-run    # prints message only, no commit
+./tokenmaxer/scripts/git/commit-with-llm.sh                                   # config file / env vars already set
+./tokenmaxer/scripts/git/commit-with-llm.sh --dry-run                        # prints message only, no commit
+./tokenmaxer/scripts/git/commit-with-llm.sh --model your-model-name          # no config needed, pass model directly
+./tokenmaxer/scripts/git/commit-with-llm.sh --model NAME --base-url URL --api-key KEY
 ```
 
-Diff source: staged changes if present, otherwise working tree diff. Only the diff is sent to the model.
+Diff source: staged changes if present, otherwise working tree diff. Only the diff, plus the list of changed file paths, is sent to the model — no full file contents, no repo tree.
+
+## Notes on small/local models
+
+Small reasoning models (e.g. qwen3) tend to fixate on one file in a multi-file diff, and may emit blank `reasoning_content`-style lines before the actual message. The script sends an explicit file list ahead of the diff and instructs the model to summarize across all files, and extracts the first non-blank line of the response rather than strictly the first line.
