@@ -44,6 +44,15 @@ Steps (do-epic skill):
    - After merging each subissue PR on GitHub, pull epic branch to local before starting next subissue.
 3. After all subissues merged, open final PR: `epic/{epic-summary}` → `main`. Summarize changes, impact, manual checks needed.
 
+## Creation Entrypoint
+
+Scripts: `scripts/github/create-issue.sh`, `scripts/github/create-epic.sh`. Skills: `do-create-issue`, `do-create-epic`.
+
+Mirrors `do-issue`/`do-epic` but for creation instead of implementation:
+
+- `create-issue.sh {title} {label} [body]` — creates a single issue, prints number/url only. Feeds Paradigm 1.
+- `create-epic.sh {epic-title} {subissue-title-1} [subissue-title-2 ...]` — creates the parent (epic) issue, then each subissue, linking each to the parent via GraphQL `addSubIssue` so `parent_from_graphql` picks it up. Prints epic number/url and each subissue number/url. Feeds Paradigm 2.
+
 ## Key mechanics (common.sh)
 
 - Parent detection: `parent_from_graphql` (issue's GraphQL `parent` field) first, fallback `parent_from_body` (regex for `epic #123` / `parent #123` in issue body).
