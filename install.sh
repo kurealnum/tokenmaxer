@@ -131,7 +131,7 @@ interactive_select() {
     i=$((i+1))
   done
 
-  read -r -p 'Select components (comma or space-separated numbers, or "all"): ' choice >&2
+  read -r -p 'Select components (comma or space-separated numbers, or "all"): ' choice </dev/tty >&2
 
   local selected=() idx
   if [[ "$choice" == "all" ]]; then
