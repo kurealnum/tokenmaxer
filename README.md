@@ -41,16 +41,16 @@ Only removes files whose checksum still matches what was installed; hand-edited 
 Do:
 
 - Script everything that can be deterministically evaluated, such as generating a branch name
-- Use no MCPs unless absolutely necessary
+- Use skills (or other alternatives, such as custom harnesses) to use these scripts in an efficient manner
+- Use token efficient harnesses (ex. [pi mono](https://github.com/earendil-works/pi), [omegon](https://github.com/styrene-lab/omegon))
 - Use minimal models and minimal effort (ex. Sonnet 5 on Low effort)
 - Meticulously plan all work; bug fixes, features, refactors, etc.
 - Trim or completely remove CLAUDE.md and any skills that aren't absolutely necessary
-- Offload non-deterministic work in a deterministic way. For example, generating a PR via a LLM with a script (_not_ a subagent)
-- Use skills (or other alternatives, such as custom harnesses) to use these scripts in an efficient manner
-- Use token efficient harnesses (ex. [pi mono](https://github.com/earendil-works/pi), [omegon](https://github.com/styrene-lab/omegon))
+- Offload non-deterministic work in a deterministic way. Ex. generating a PR via a local/extremely cheap LLM with a script (_not_ a subagent)
 
 Avoid:
 
+- MCPs
 - Running high-context sessions without compacting/resetting. A _very rough_ rule of thumb is 20-30% of a model's maximum context.
 - Subagents, default commands such as `/review` from Claude Code, and situations that would require a LLM to iterate indefinitely, such as `/loop`
 - Automated code reviews and other automated LLM runs that might not be necessary.
